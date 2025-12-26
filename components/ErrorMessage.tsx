@@ -1,8 +1,3 @@
-/**
- * ErrorMessage Component
- * Displays error messages in a user-friendly way
- */
-
 interface ErrorMessageProps {
   message: string;
   onRetry?: () => void;

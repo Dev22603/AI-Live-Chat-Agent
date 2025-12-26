@@ -1,20 +1,12 @@
-/**
- * Message utility functions
- * Helpers for message creation, formatting, and validation
- */
-
 import { Message, MessageSender } from '@/types/chat';
 
-/**
- * Create a new message object
- */
 export function createMessage(
   content: string,
   sender: MessageSender,
   conversationId: string = 'temp'
 ): Message {
   return {
-    id: generateTempId(),
+    id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     conversationId,
     sender,
     content,
@@ -23,18 +15,6 @@ export function createMessage(
   };
 }
 
-/**
- * Generate a temporary ID for optimistic UI updates
- * Will be replaced by server-generated ID
- */
-function generateTempId(): string {
-  return `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-}
-
-/**
- * Validate message content
- * Returns error message if invalid, null if valid
- */
 export function validateMessage(content: string): string | null {
   const trimmed = content.trim();
 
@@ -49,28 +29,17 @@ export function validateMessage(content: string): string | null {
   return null;
 }
 
-/**
- * Format timestamp for display
- */
 export function formatTimestamp(date: Date): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
 
-  if (diffMins < 1) {
-    return 'Just now';
-  }
-
-  if (diffMins < 60) {
-    return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
-  }
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
 
   const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) {
-    return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-  }
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
 
-  // Same day
   if (
     date.getDate() === now.getDate() &&
     date.getMonth() === now.getMonth() &&
@@ -83,7 +52,6 @@ export function formatTimestamp(date: Date): string {
     });
   }
 
-  // Different day
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -93,12 +61,7 @@ export function formatTimestamp(date: Date): string {
   });
 }
 
-/**
- * Truncate long text with ellipsis
- */
 export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) {
-    return text;
-  }
+  if (text.length <= maxLength) return text;
   return text.substring(0, maxLength - 3) + '...';
 }

@@ -1,12 +1,3 @@
-/**
- * ChatInput Component
- * Input box and send button for chat messages
- * Based on TODO.md requirements:
- * - Input box + send button
- * - Enter key sends message
- * - Disable send button while request is processing
- */
-
 'use client';
 
 import { useState, FormEvent, KeyboardEvent } from 'react';
@@ -27,17 +18,11 @@ export default function ChatInput({
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Handle form submission
-   */
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     sendMessage();
   };
 
-  /**
-   * Send message with validation
-   */
   const sendMessage = () => {
     const validationError = validateMessage(message);
 
@@ -51,10 +36,6 @@ export default function ChatInput({
     setError(null);
   };
 
-  /**
-   * Handle Enter key to send message
-   * Shift+Enter for new line
-   */
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -64,9 +45,6 @@ export default function ChatInput({
     }
   };
 
-  /**
-   * Handle input change and clear errors
-   */
   const handleChange = (value: string) => {
     setMessage(value);
     if (error) {

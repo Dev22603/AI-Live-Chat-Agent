@@ -1,9 +1,3 @@
-/**
- * MessageList Component
- * Scrollable list of messages with auto-scroll to latest
- * Based on TODO.md requirements
- */
-
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -21,10 +15,6 @@ export default function MessageList({ messages, isTyping = false }: MessageListP
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  /**
-   * Auto-scroll to bottom when new messages arrive
-   * Based on TODO.md: Auto scroll to latest
-   */
   useEffect(() => {
     const timer = setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -39,7 +29,6 @@ export default function MessageList({ messages, isTyping = false }: MessageListP
       className="flex-1 overflow-y-auto overflow-x-hidden bg-white"
     >
       <div className="flex flex-col">
-        {/* Welcome message */}
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-4 px-6 py-12 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
@@ -68,15 +57,12 @@ export default function MessageList({ messages, isTyping = false }: MessageListP
           </div>
         )}
 
-        {/* Messages */}
         {messages.map((message) => (
           <Message key={message.id} message={message} />
         ))}
 
-        {/* Typing indicator */}
         {isTyping && <TypingIndicator />}
 
-        {/* Scroll anchor */}
         <div ref={messagesEndRef} />
       </div>
     </div>

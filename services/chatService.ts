@@ -1,56 +1,12 @@
-/**
- * Chat API Service Layer
- * All API calls should go through this service
- *
- * NOTE: This contains mock implementations for development
- * Replace with actual API calls once backend is ready
- * See API_INTEGRATION.md for integration details
- */
-
 import { ChatRequest, ChatResponse, ApiError } from '@/types/chat';
 import { API_ENDPOINTS, CHAT_CONFIG } from '@/constants/chat';
 
-/**
- * Send a chat message to the backend
- *
- * @param message - User's message content
- * @param sessionId - Optional sessionId from localStorage
- * @returns Promise with AI reply and sessionId
- *
- * Backend endpoint: POST /api/chat/message
- * Request: { message: string, sessionId?: string }
- * Response: { reply: string, sessionId: string }
- */
 export async function sendMessage(
   message: string,
   sessionId?: string | null
 ): Promise<ChatResponse> {
   try {
-    // TODO: Replace this mock with actual API call
-    // Example implementation:
-    /*
-    const response = await fetch(API_ENDPOINTS.SEND_MESSAGE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message,
-        sessionId: sessionId || undefined,
-      } as ChatRequest),
-      signal: AbortSignal.timeout(CHAT_CONFIG.REQUEST_TIMEOUT),
-    });
-
-    if (!response.ok) {
-      const error: ApiError = await response.json();
-      throw new Error(error.message || 'Failed to send message');
-    }
-
-    const data: ChatResponse = await response.json();
-    return data;
-    */
-
-    // MOCK IMPLEMENTATION - Remove when backend is ready
+    // TODO: Replace with actual API call when backend is ready
     return mockSendMessage(message, sessionId);
   } catch (error) {
     console.error('Error sending message:', error);
@@ -58,42 +14,11 @@ export async function sendMessage(
   }
 }
 
-/**
- * Fetch conversation history (optional feature)
- *
- * @param sessionId - Session ID to fetch history for
- * @returns Promise with array of messages
- *
- * Backend endpoint: GET /api/chat/history?sessionId={sessionId}
- */
 export async function getConversationHistory(
   sessionId: string
 ): Promise<ChatResponse[]> {
   try {
-    // TODO: Replace this mock with actual API call
-    // Example implementation:
-    /*
-    const response = await fetch(
-      `${API_ENDPOINTS.GET_HISTORY}?sessionId=${sessionId}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: AbortSignal.timeout(CHAT_CONFIG.REQUEST_TIMEOUT),
-      }
-    );
-
-    if (!response.ok) {
-      const error: ApiError = await response.json();
-      throw new Error(error.message || 'Failed to fetch history');
-    }
-
-    const data = await response.json();
-    return data.messages || [];
-    */
-
-    // MOCK IMPLEMENTATION - Remove when backend is ready
+    // TODO: Replace with actual API call when backend is ready
     return mockGetHistory(sessionId);
   } catch (error) {
     console.error('Error fetching history:', error);
@@ -101,9 +26,6 @@ export async function getConversationHistory(
   }
 }
 
-/**
- * Handle and normalize API errors
- */
 function handleApiError(error: unknown): Error {
   if (error instanceof Error) {
     if (error.name === 'AbortError') {
@@ -114,28 +36,15 @@ function handleApiError(error: unknown): Error {
   return new Error('An unexpected error occurred');
 }
 
-// ============================================================================
-// MOCK IMPLEMENTATIONS - DELETE THESE WHEN BACKEND IS READY
-// ============================================================================
-
-/**
- * Mock implementation of sendMessage
- * Simulates backend response with delay
- */
 async function mockSendMessage(
   message: string,
   sessionId?: string | null
 ): Promise<ChatResponse> {
-  // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
 
-  // Generate or reuse sessionId
   const responseSessionId = sessionId || `mock-session-${Date.now()}`;
-
-  // Simple mock responses based on keywords
-  let reply = '';
-
   const lowerMessage = message.toLowerCase();
+  let reply = '';
 
   if (lowerMessage.includes('shipping')) {
     reply =
@@ -171,13 +80,7 @@ async function mockSendMessage(
   };
 }
 
-/**
- * Mock implementation of getConversationHistory
- */
 async function mockGetHistory(sessionId: string): Promise<ChatResponse[]> {
-  // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Return empty history for mock
   return [];
 }

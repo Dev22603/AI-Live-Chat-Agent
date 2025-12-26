@@ -1,8 +1,3 @@
-/**
- * TypingIndicator Component
- * Shows "Agent is typing..." animation
- */
-
 export default function TypingIndicator() {
   return (
     <div className="flex items-start gap-3 px-4 py-3">

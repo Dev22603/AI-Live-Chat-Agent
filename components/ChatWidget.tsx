@@ -1,9 +1,3 @@
-/**
- * ChatWidget Component
- * Main chat interface with state management
- * Implements the flow described in FLOW.md
- */
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -14,7 +8,7 @@ import { sendMessage } from '@/services/chatService';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 import ErrorMessage from './ErrorMessage';
-import { ERROR_MESSAGES, CHAT_CONFIG } from '@/constants/chat';
+import { ERROR_MESSAGES } from '@/constants/chat';
 
 export default function ChatWidget() {
   const [state, setState] = useState<ChatState>({
@@ -24,10 +18,6 @@ export default function ChatWidget() {
     sessionId: null,
   });
 
-  /**
-   * Initialize sessionId from localStorage on mount
-   * Based on FLOW.md: Frontend reads stored value
-   */
   useEffect(() => {
     const storedSessionId = getSessionId();
     if (storedSessionId) {
@@ -35,15 +25,9 @@ export default function ChatWidget() {
     }
   }, []);
 
-  /**
-   * Handle sending a message
-   * Implements the flow from FLOW.md and TODO.md requirements
-   */
   const handleSendMessage = async (content: string) => {
-    // Create user message for optimistic UI update
     const userMessage = createMessage(content, 'user');
 
-    // Add user message to UI immediately
     setState((prev) => ({
       ...prev,
       messages: [...prev.messages, userMessage],
@@ -52,39 +36,29 @@ export default function ChatWidget() {
     }));
 
     try {
-      // Call API with message and sessionId
-      // Based on FLOW.md: Frontend sends sessionId with every request
       const response = await sendMessage(content, state.sessionId);
 
-      // Store sessionId if this is first message
-      // Based on FLOW.md: Frontend stores sessionId from response
       if (!state.sessionId && response.sessionId) {
         setSessionId(response.sessionId);
         setState((prev) => ({ ...prev, sessionId: response.sessionId }));
       }
 
-      // Create AI response message
       const aiMessage = createMessage(
         response.reply,
         'ai',
         response.conversationId || 'temp'
       );
 
-      // Update UI with successful response
       setState((prev) => ({
         ...prev,
         messages: [...prev.messages, aiMessage],
         isLoading: false,
       }));
     } catch (error) {
-      // Handle errors gracefully
-      // Based on TODO.md: Show error messages cleanly
       console.error('Failed to send message:', error);
 
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : ERROR_MESSAGES.UNKNOWN;
+        error instanceof Error ? error.message : ERROR_MESSAGES.UNKNOWN;
 
       setState((prev) => ({
         ...prev,
@@ -92,7 +66,6 @@ export default function ChatWidget() {
         error: errorMessage,
       }));
 
-      // Mark user message as failed
       setState((prev) => ({
         ...prev,
         messages: prev.messages.map((msg) =>
@@ -102,13 +75,9 @@ export default function ChatWidget() {
     }
   };
 
-  /**
-   * Retry sending the last failed message
-   */
   const handleRetry = () => {
     const lastMessage = state.messages[state.messages.length - 1];
     if (lastMessage && lastMessage.sender === 'user' && lastMessage.status === 'error') {
-      // Remove failed message and resend
       setState((prev) => ({
         ...prev,
         messages: prev.messages.slice(0, -1),
@@ -116,21 +85,16 @@ export default function ChatWidget() {
       }));
       handleSendMessage(lastMessage.content);
     } else {
-      // Just clear error
       setState((prev) => ({ ...prev, error: null }));
     }
   };
 
-  /**
-   * Dismiss error message
-   */
   const handleDismissError = () => {
     setState((prev) => ({ ...prev, error: null }));
   };
 
   return (
     <div className="flex h-screen flex-col bg-white">
-      {/* Header */}
       <div className="border-b border-gray-200 bg-white px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500">
@@ -159,7 +123,6 @@ export default function ChatWidget() {
         </div>
       </div>
 
-      {/* Error message */}
       {state.error && (
         <ErrorMessage
           message={state.error}
@@ -168,17 +131,9 @@ export default function ChatWidget() {
         />
       )}
 
-      {/* Message list */}
-      <MessageList
-        messages={state.messages}
-        isTyping={state.isLoading}
-      />
+      <MessageList messages={state.messages} isTyping={state.isLoading} />
 
-      {/* Input area */}
-      <ChatInput
-        onSendMessage={handleSendMessage}
-        disabled={state.isLoading}
-      />
+      <ChatInput onSendMessage={handleSendMessage} disabled={state.isLoading} />
     </div>
   );
 }

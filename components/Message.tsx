@@ -1,9 +1,3 @@
-/**
- * Message Component
- * Displays a single message (user or AI)
- * Based on TODO.md: Distinguish user vs AI messages
- */
-
 import { Message as MessageType } from '@/types/chat';
 import { formatTimestamp } from '@/lib/messageUtils';
 
@@ -20,7 +14,6 @@ export default function Message({ message }: MessageProps) {
         isUser ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
-      {/* Avatar */}
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
           isUser ? 'bg-gray-700' : 'bg-blue-500'
@@ -57,7 +50,6 @@ export default function Message({ message }: MessageProps) {
         )}
       </div>
 
-      {/* Message content */}
       <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
         <div
           className={`max-w-sm rounded-2xl px-4 py-2 ${
