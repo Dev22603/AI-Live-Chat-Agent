@@ -1,5 +1,4 @@
-import { ChatRequest, ChatResponse, ApiError } from '@/types/chat';
-import { API_ENDPOINTS, CHAT_CONFIG } from '@/constants/chat';
+import { ChatResponse } from '@/types/chat';
 
 export async function sendMessage(
   message: string,

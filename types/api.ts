@@ -1,4 +1,4 @@
-import { Sender } from "./models";
+import { MessageSender } from "./chat";
 
 export interface ChatRequest {
 	message: string;
@@ -16,7 +16,7 @@ export interface GetHistoryRequest {
 }
 export interface HistoryMessage {
 	id: string;
-	sender: Sender;
+	sender: MessageSender;
 	text: string;
 	timestamp: string;
 }

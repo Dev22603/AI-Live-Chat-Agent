@@ -18,10 +18,6 @@ export interface Conversation {
   status: 'active' | 'archived' | 'closed';
 }
 
-export interface ChatRequest {
-  message: string;
-  sessionId?: string;
-}
 
 export interface ChatResponse {
   reply: string;
@@ -30,11 +26,6 @@ export interface ChatResponse {
   timestamp?: string;
 }
 
-export interface ApiError {
-  error: string;
-  message: string;
-  statusCode?: number;
-}
 
 export interface ChatState {
   messages: Message[];
@@ -43,12 +34,4 @@ export interface ChatState {
   sessionId: string | null;
 }
 
-export interface MessageProps {
-  message: Message;
-}
 
-export interface ChatInputProps {
-  onSendMessage: (message: string) => void;
-  disabled: boolean;
-  placeholder?: string;
-}
