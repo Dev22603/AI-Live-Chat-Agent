@@ -7,4 +7,4 @@
 
 // Export all repositories
 export * from './chatRepository';
-export * from './sessionRepository';
+export * from './conversationRepository';
