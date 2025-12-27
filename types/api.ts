@@ -30,5 +30,5 @@ export interface GetHistoryData {
 export interface ApiResponse<T = any> {
 	code: number;          // HTTP-like status code
 	message: string;       // description / explanation
-	data: T | null;        // real payload
+	data: T;               // real payload (object for success, null for error)
 }

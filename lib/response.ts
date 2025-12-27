@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ApiResponse } from "../types/api";
 
-export function success<T>(code: number, message: string, data: T) {
+export function success<T extends Record<string, any>>(code: number, message: string, data: T) {
 	const body: ApiResponse<T> = {
 		code,
 		message,
