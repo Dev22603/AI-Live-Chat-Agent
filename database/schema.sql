@@ -37,21 +37,8 @@ CREATE TABLE session_cache (
 -- Indexes for Performance
 -- ============================================
 
--- Index on foreign keys
-CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
-CREATE INDEX idx_session_cache_conversation_id ON session_cache(conversation_id);
-
--- Index on session_id for faster lookups
-CREATE INDEX idx_conversations_session_id ON conversations(session_id);
-
--- Index on created_at for chronological queries
-CREATE INDEX idx_messages_created_at ON messages(created_at DESC);
-
--- Composite index for fetching messages by conversation with ordering
-CREATE INDEX idx_messages_conversation_created ON messages(conversation_id, created_at DESC);
-
--- Index for session cache cleanup queries
-CREATE INDEX idx_session_cache_last_accessed ON session_cache(last_accessed);
+-- Composite index for fetching messages by conversation with chronological ordering
+CREATE INDEX idx_conversation_id ON messages (conversation_id, created_at);
 
 -- ============================================
 -- Functions and Triggers
