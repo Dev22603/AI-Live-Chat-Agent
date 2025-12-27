@@ -18,15 +18,6 @@ export interface Conversation {
   status: 'active' | 'archived' | 'closed';
 }
 
-
-export interface ChatResponse {
-  reply: string;
-  sessionId: string;
-  conversationId?: string;
-  timestamp?: string;
-}
-
-
 export interface ChatState {
   messages: Message[];
   isLoading: boolean;
