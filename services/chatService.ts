@@ -1,9 +1,9 @@
-import { ChatResponse } from '@/types/chat';
+import { ApiResponse, ChatData } from '@/types/api';
 
 export async function sendMessage(
   message: string,
   sessionId?: string | null
-): Promise<ChatResponse> {
+): Promise<ApiResponse<ChatData>> {
   try {
     // TODO: Replace with actual API call when backend is ready
     return mockSendMessage(message, sessionId);
@@ -15,7 +15,7 @@ export async function sendMessage(
 
 export async function getConversationHistory(
   sessionId: string
-): Promise<ChatResponse[]> {
+): Promise<ApiResponse<ChatData[]>> {
   try {
     // TODO: Replace with actual API call when backend is ready
     return mockGetHistory(sessionId);
@@ -38,7 +38,7 @@ function handleApiError(error: unknown): Error {
 async function mockSendMessage(
   message: string,
   sessionId?: string | null
-): Promise<ChatResponse> {
+): Promise<ApiResponse<ChatData>> {
   await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
 
   const responseSessionId = sessionId || `mock-session-${Date.now()}`;
@@ -73,13 +73,20 @@ async function mockSendMessage(
   }
 
   return {
-    reply,
-    sessionId: responseSessionId,
-    timestamp: new Date().toISOString(),
+    code: 201,
+    message: 'message sent',
+    data: {
+      message: reply,
+      sessionId: responseSessionId,
+    },
   };
 }
 
-async function mockGetHistory(sessionId: string): Promise<ChatResponse[]> {
+async function mockGetHistory(sessionId: string): Promise<ApiResponse<ChatData[]>> {
   await new Promise((resolve) => setTimeout(resolve, 500));
-  return [];
+  return {
+    code: 200,
+    message: 'history retrieved',
+    data: [],
+  };
 }
