@@ -38,15 +38,15 @@ export default function ChatWidget() {
     try {
       const response = await sendMessage(content, state.sessionId);
 
-      if (!state.sessionId && response.sessionId) {
-        setSessionId(response.sessionId);
-        setState((prev) => ({ ...prev, sessionId: response.sessionId }));
+      if (!state.sessionId && response.data?.sessionId) {
+        setSessionId(response.data.sessionId);
+        setState((prev) => ({ ...prev, sessionId: response.data!.sessionId }));
       }
 
       const aiMessage = createMessage(
-        response.reply,
+        response.data?.message || '',
         'model',
-        response.conversationId || 'temp'
+        response.data?.sessionId || 'temp'
       );
 
       setState((prev) => ({

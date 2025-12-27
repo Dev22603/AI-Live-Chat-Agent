@@ -1,4 +1,4 @@
-import { ApiResponse, ChatData } from '@/types/api';
+import { ApiResponse, ChatData, GetHistoryData } from '@/types/api';
 
 export async function sendMessage(
   message: string,
@@ -15,7 +15,7 @@ export async function sendMessage(
 
 export async function getConversationHistory(
   sessionId: string
-): Promise<ApiResponse<ChatData[]>> {
+): Promise<ApiResponse<GetHistoryData>> {
   try {
     // TODO: Replace with actual API call when backend is ready
     return mockGetHistory(sessionId);
@@ -82,11 +82,15 @@ async function mockSendMessage(
   };
 }
 
-async function mockGetHistory(sessionId: string): Promise<ApiResponse<ChatData[]>> {
+async function mockGetHistory(sessionId: string): Promise<ApiResponse<GetHistoryData>> {
   await new Promise((resolve) => setTimeout(resolve, 500));
   return {
     code: 200,
     message: 'history retrieved',
-    data: [],
+    data: {
+      sessionId,
+      conversationId: `conv-${sessionId}`,
+      messages: [],
+    },
   };
 }
