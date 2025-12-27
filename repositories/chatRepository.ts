@@ -51,8 +51,8 @@ export async function saveMessage(
 		let finalConversationId = conversationId;
 		if (!finalConversationId) {
 			const conversationResult = await client.query(
-				`INSERT INTO conversations (session_id, status, created_at, updated_at)
-				 VALUES ($1, 'active', NOW(), NOW())
+				`INSERT INTO conversations (session_id, created_at, updated_at)
+				 VALUES ($1, NOW(), NOW())
 				 ON CONFLICT (session_id)
 				 DO UPDATE SET updated_at = NOW()
 				 RETURNING id`,
@@ -63,9 +63,9 @@ export async function saveMessage(
 
 		// Insert the message
 		const result = await client.query(
-			`INSERT INTO messages (conversation_id, sender, text, timestamp, created_at)
-			 VALUES ($1, $2, $3, NOW(), NOW())
-			 RETURNING id, conversation_id, sender, text, timestamp`,
+			`INSERT INTO messages (conversation_id, sender, content, created_at)
+			 VALUES ($1, $2, $3, NOW())
+			 RETURNING id, conversation_id, sender, content, created_at`,
 			[finalConversationId, sender, message]
 		);
 
@@ -77,8 +77,8 @@ export async function saveMessage(
 		return {
 			id: row.id,
 			sender: row.sender as MessageSender,
-			text: row.text,
-			timestamp: row.timestamp.toISOString(),
+			text: row.content,
+			timestamp: row.created_at.toISOString(),
 		};
 	} catch (error) {
 		// Rollback transaction on error
