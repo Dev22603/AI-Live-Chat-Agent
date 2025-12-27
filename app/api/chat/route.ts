@@ -14,8 +14,16 @@ export async function POST(request: Request) {
 	if (!sessionId) {
 		sessionId = randomUUID();
 	}
+
+
+
+
+
+
+
+	let reply="ok sir";
 	return success<ChatData>(201, "message sent", {
-		message: "ok sir",
+		message: reply,
 		sessionId: sessionId,
 	});
 }
