@@ -2,11 +2,11 @@ import { ApiResponse, ChatData, GetHistoryData } from '@/types/api';
 
 export async function sendMessage(
   message: string,
-  sessionId?: string | null
+  conversationId?: string | null
 ): Promise<ApiResponse<ChatData>> {
   try {
     // TODO: Replace with actual API call when backend is ready
-    return mockSendMessage(message, sessionId);
+    return mockSendMessage(message, conversationId);
   } catch (error) {
     console.error('Error sending message:', error);
     throw handleApiError(error);
@@ -14,11 +14,11 @@ export async function sendMessage(
 }
 
 export async function getConversationHistory(
-  sessionId: string
+  conversationId: string
 ): Promise<ApiResponse<GetHistoryData>> {
   try {
     // TODO: Replace with actual API call when backend is ready
-    return mockGetHistory(sessionId);
+    return mockGetHistory(conversationId);
   } catch (error) {
     console.error('Error fetching history:', error);
     throw handleApiError(error);
@@ -37,11 +37,11 @@ function handleApiError(error: unknown): Error {
 
 async function mockSendMessage(
   message: string,
-  sessionId?: string | null
+  conversationId?: string | null
 ): Promise<ApiResponse<ChatData>> {
   await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
 
-  const responseSessionId = sessionId || `mock-session-${Date.now()}`;
+  const responseConversationId = conversationId || `mock-conv-${Date.now()}`;
   const lowerMessage = message.toLowerCase();
   let reply = '';
 
@@ -77,19 +77,18 @@ async function mockSendMessage(
     message: 'message sent',
     data: {
       message: reply,
-      sessionId: responseSessionId,
+      conversationId: responseConversationId,
     },
   };
 }
 
-async function mockGetHistory(sessionId: string): Promise<ApiResponse<GetHistoryData>> {
+async function mockGetHistory(conversationId: string): Promise<ApiResponse<GetHistoryData>> {
   await new Promise((resolve) => setTimeout(resolve, 500));
   return {
     code: 200,
     message: 'history retrieved',
     data: {
-      sessionId,
-      conversationId: `conv-${sessionId}`,
+      conversationId,
       messages: [],
     },
   };

@@ -10,13 +10,10 @@ export async function POST(request: Request) {
 	if (!userMessage) {
 		return error("message cant be empty", 400);
 	}
-	let sessionId = body.sessionId?.trim() ?? null;
-	if (!sessionId) {
-		sessionId = randomUUID();
+	let conversationId = body.conversationId?.trim() ?? null;
+	if (!conversationId) {
+		conversationId = randomUUID();
 	}
-
-
-
 
 
 
@@ -24,6 +21,6 @@ export async function POST(request: Request) {
 	let reply="ok sir";
 	return success<ChatData>(201, "message sent", {
 		message: reply,
-		sessionId: sessionId,
+		conversationId: conversationId,
 	});
 }

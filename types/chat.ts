@@ -12,17 +12,15 @@ export interface Message {
 
 export interface Conversation {
   id: string;
-  sessionId: string;
   createdAt: Date;
   updatedAt: Date;
-  status: 'active' | 'archived' | 'closed';
 }
 
 export interface ChatState {
   messages: Message[];
   isLoading: boolean;
   error: string | null;
-  sessionId: string | null;
+  conversationId: string | null;
 }
 
 

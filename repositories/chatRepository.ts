@@ -22,21 +22,19 @@ import { PoolClient } from "pg";
 /**
  * Saves a chat message to the database
  *
- * @param sessionId - The session identifier
+ * @param conversationId - The conversation identifier (UUID)
  * @param message - The message content
  * @param sender - Who sent the message ('user' or 'model')
- * @param conversationId - Optional conversation ID (will be created if not provided)
  * @returns The saved message with generated ID and timestamp
  * @throws Error if database operation fails
  *
  * @example
- * const savedMessage = await saveMessage('session-123', 'Hello!', 'user');
+ * const savedMessage = await saveMessage('uuid-here', 'Hello!', 'user');
  */
 export async function saveMessage(
-	sessionId: string,
+	conversationId: string,
 	message: string,
-	sender: MessageSender,
-	conversationId?: string
+	sender: MessageSender
 ): Promise<HistoryMessage> {
 	let client: PoolClient | null = null;
 
@@ -47,26 +45,21 @@ export async function saveMessage(
 		// Start transaction
 		await client.query('BEGIN');
 
-		// If no conversationId provided, create or get one for this session
-		let finalConversationId = conversationId;
-		if (!finalConversationId) {
-			const conversationResult = await client.query(
-				`INSERT INTO conversations (session_id, created_at, updated_at)
-				 VALUES ($1, NOW(), NOW())
-				 ON CONFLICT (session_id)
-				 DO UPDATE SET updated_at = NOW()
-				 RETURNING id`,
-				[sessionId]
-			);
-			finalConversationId = conversationResult.rows[0].id;
-		}
+		// Ensure conversation exists
+		await client.query(
+			`INSERT INTO conversations (id, created_at, updated_at)
+			 VALUES ($1, NOW(), NOW())
+			 ON CONFLICT (id)
+			 DO UPDATE SET updated_at = NOW()`,
+			[conversationId]
+		);
 
 		// Insert the message
 		const result = await client.query(
 			`INSERT INTO messages (conversation_id, sender, content, created_at)
 			 VALUES ($1, $2, $3, NOW())
 			 RETURNING id, conversation_id, sender, content, created_at`,
-			[finalConversationId, sender, message]
+			[conversationId, sender, message]
 		);
 
 		// Commit transaction
@@ -102,8 +95,6 @@ export async function saveMessage(
 }
 
 // TODO: Implement remaining repository methods
-// - getConversationHistory(sessionId)
-// - createConversation(sessionId)
-// - updateConversation(sessionId, data)
+// - getConversationHistory(conversationId)
 // - deleteMessage(messageId)
 // - getMessageById(messageId)

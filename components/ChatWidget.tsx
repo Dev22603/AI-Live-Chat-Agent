@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Message, ChatState } from '@/types/chat';
-import { getSessionId, setSessionId } from '@/lib/session';
+import { getConversationId, setConversationId } from '@/lib/conversation';
 import { createMessage } from '@/lib/messageUtils';
 import { sendMessage } from '@/services/chatService';
 import MessageList from './MessageList';
@@ -15,13 +15,13 @@ export default function ChatWidget() {
     messages: [],
     isLoading: false,
     error: null,
-    sessionId: null,
+    conversationId: null,
   });
 
   useEffect(() => {
-    const storedSessionId = getSessionId();
-    if (storedSessionId) {
-      setState((prev) => ({ ...prev, sessionId: storedSessionId }));
+    const storedConversationId = getConversationId();
+    if (storedConversationId) {
+      setState((prev) => ({ ...prev, conversationId: storedConversationId }));
     }
   }, []);
 
@@ -36,17 +36,17 @@ export default function ChatWidget() {
     }));
 
     try {
-      const response = await sendMessage(content, state.sessionId);
+      const response = await sendMessage(content, state.conversationId);
 
-      if (!state.sessionId && response.data.sessionId) {
-        setSessionId(response.data.sessionId);
-        setState((prev) => ({ ...prev, sessionId: response.data.sessionId }));
+      if (!state.conversationId && response.data.conversationId) {
+        setConversationId(response.data.conversationId);
+        setState((prev) => ({ ...prev, conversationId: response.data.conversationId }));
       }
 
       const aiMessage = createMessage(
         response.data.message,
         'model',
-        response.data.sessionId || 'temp'
+        response.data.conversationId || 'temp'
       );
 
       setState((prev) => ({

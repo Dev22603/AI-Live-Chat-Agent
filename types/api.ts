@@ -2,17 +2,16 @@ import { MessageSender } from "./chat";
 
 export interface ChatRequest {
 	message: string;
-	sessionId?: string | null;
+	conversationId?: string | null;
 }
 
 export interface ChatData {
 	message: string;
-	sessionId?: string;
+	conversationId: string;
 }
 
-
 export interface GetHistoryRequest {
-	sessionId?: string;
+	conversationId: string;
 }
 export interface HistoryMessage {
 	id: string;
@@ -22,7 +21,6 @@ export interface HistoryMessage {
 }
 
 export interface GetHistoryData {
-	sessionId: string;
 	conversationId: string;
 	messages: HistoryMessage[];
 }
