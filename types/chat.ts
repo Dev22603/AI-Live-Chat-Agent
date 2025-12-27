@@ -1,4 +1,4 @@
-export type MessageSender = 'user' | 'ai';
+export type MessageSender = 'user' | 'model';
 export type MessageStatus = 'sending' | 'sent' | 'error';
 
 export interface Message {

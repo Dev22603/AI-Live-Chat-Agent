@@ -9,6 +9,7 @@ const ai = new GoogleGenAI({
 // create a chat session
 const chat = ai.chats.create({
 	model: "gemini-2.5-flash", // or any supported chat model name
+    history:
 });
 
 export { chat };

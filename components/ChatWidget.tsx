@@ -45,7 +45,7 @@ export default function ChatWidget() {
 
       const aiMessage = createMessage(
         response.reply,
-        'ai',
+        'model',
         response.conversationId || 'temp'
       );
 

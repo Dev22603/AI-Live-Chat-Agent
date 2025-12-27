@@ -1,2 +1,2 @@
 // types/models.ts
-export type Sender = "user" | "ai";
+export type Sender = "user" | "model";

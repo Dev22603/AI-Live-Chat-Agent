@@ -92,7 +92,7 @@ GET /api/chat/history?sessionId={sessionId}
 {
   messages: Array<{
     id: string;
-    sender: 'user' | 'ai';
+    sender: 'user' | 'model';
     content: string;
     timestamp: string; // ISO format
   }>;
@@ -151,7 +151,7 @@ async function handleChatMessage(req, res) {
   // Step 5: Save AI reply
   await saveMessage({
     conversationId: conversation.id,
-    sender: 'ai',
+    sender: 'model',
     content: aiReply,
     timestamp: new Date()
   });
@@ -190,7 +190,7 @@ CREATE INDEX idx_conversations_session_id ON conversations(session_id);
 CREATE TABLE messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-  sender VARCHAR(10) NOT NULL CHECK (sender IN ('user', 'ai')),
+  sender VARCHAR(10) NOT NULL CHECK (sender IN ('user', 'model')),
   content TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   metadata JSONB DEFAULT '{}'
