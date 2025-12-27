@@ -27,7 +27,7 @@ export interface GetHistoryData {
 	messages: HistoryMessage[];
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T extends Record<string, any> | null = Record<string, any>> {
 	code: number;          // HTTP-like status code
 	message: string;       // description / explanation
 	data: T;               // real payload (object for success, null for error)
