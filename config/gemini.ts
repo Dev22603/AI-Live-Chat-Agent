@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { config } from "../constants/config";
+import { config } from "./env";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({

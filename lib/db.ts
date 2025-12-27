@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { config } from "../constants/config";
+import { config } from "../config/env";
 export const pool = new Pool({
 	host: config.DB_HOST,
 	port: config.DB_PORT,
