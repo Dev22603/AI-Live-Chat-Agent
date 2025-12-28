@@ -22,17 +22,7 @@
 
 import { pool } from "@/lib/db";
 import { PoolClient } from "pg";
-export async function saveConversation() {
-	let client: PoolClient | null = null;
-	try {
-		client = await pool.connect();
-		const result = await client.query(
-			"INSERT INTO conversations DEFAULT VALUES RETURNING id"
-		);
-		const conversationId = result.rows[0].id;
-		return conversationId;
-	} catch (error) {}
-}
+
 
 export async function getConversation(conversationId: string) {
 	let client: PoolClient | null = null;
@@ -46,24 +36,6 @@ export async function getConversation(conversationId: string) {
 		return conversation;
 	} catch (error) {
 		throw new Error("Failed to get conversation");
-	} finally {
-		if (client) {
-			client.release();
-		}
-	}
-}
-
-export async function updateConversation(conversationId: string) {
-	let client: PoolClient | null = null;
-	try {
-		client = await pool.connect();
-		//update the time
-		await client.query(
-			"UPDATE conversations SET updated_at = NOW() WHERE id = $1",
-			[conversationId]
-		);
-	} catch (error) {
-		throw new Error("Failed to update conversation");
 	} finally {
 		if (client) {
 			client.release();

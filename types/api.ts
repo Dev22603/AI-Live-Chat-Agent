@@ -10,9 +10,6 @@ export interface ChatData {
 	conversationId: string;
 }
 
-export interface GetHistoryRequest {
-	conversationId: string;
-}
 export interface HistoryMessage {
 	id: string;
 	sender: MessageSender;
@@ -20,11 +17,23 @@ export interface HistoryMessage {
 	timestamp: string;
 }
 
-export interface GetHistoryData {
+export interface HistoryData {
 	conversationId: string;
 	messages: HistoryMessage[];
 }
 
+export interface GeminiHistoryMessage {
+	role: "user" | "model";
+	parts: Array<{ text: string }>;
+}
+
+
+export function convertToGeminiFormat(historyData: HistoryData): GeminiHistoryMessage[] {
+	return historyData.messages.map(msg => ({
+		role: msg.sender,           // 'user' or 'model'
+		parts: [{ text: msg.text }] // Wrap in array with text object
+	}));
+}
 export interface ApiResponse<T extends Record<string, any> | null = Record<string, any>> {
 	code: number;          // HTTP-like status code
 	message: string;       // description / explanation
