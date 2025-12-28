@@ -96,7 +96,9 @@ export async function saveMessage(
 	}
 }
 
-export async function getConversationHistory(conversationId: string): Promise<HistoryData> {
+export async function getConversationHistory(
+	conversationId: string
+): Promise<HistoryData> {
 	let client: PoolClient | null = null;
 	try {
 		client = await pool.connect();
@@ -124,7 +126,56 @@ export async function getConversationHistory(conversationId: string): Promise<Hi
 		}
 	}
 }
-// TODO: Implement remaining repository methods
-// - getConversationHistory(conversationId)
-// - deleteMessage(messageId)
-// - getMessageById(messageId)
+
+export async function saveChatExchange(
+	conversationId: string,
+	userMessage: string,
+	modelResponse: string
+): Promise<{ userMessage: HistoryMessage; modelMessage: HistoryMessage }> {
+	let client: PoolClient | null = null;
+	try {
+		client = await pool.connect();
+		await client.query("BEGIN");
+		await client.query(
+			`INSERT INTO conversations (id, created_at, updated_at)
+			 VALUES ($1, NOW(), NOW())
+			 ON CONFLICT (id)
+			 DO UPDATE SET updated_at = NOW()`,
+			[conversationId]
+		);
+		// Insert the userMessage
+		const userResult = await client.query(
+			`INSERT INTO messages (conversation_id, sender, content, created_at)
+			 VALUES ($1, $2, $3, NOW())
+			 RETURNING id, conversation_id, sender, content, created_at`,
+			[conversationId, "user", userMessage]
+		);
+		// Insert the modelMessage
+		const modelResult = await client.query(
+			`INSERT INTO messages (conversation_id, sender, content, created_at)
+			 VALUES ($1, $2, $3, NOW())
+			 RETURNING id, conversation_id, sender, content, created_at`,
+			[conversationId, "model", modelResponse]
+		);
+		await client.query("COMMIT");
+		return {
+			userMessage: convertToHistoryMessage(userResult.rows[0]),
+			modelMessage: convertToHistoryMessage(modelResult.rows[0]),
+		};
+	} catch (error) {
+		console.error("Error getting conversation history:", error);
+		throw error;
+	} finally {
+		if (client) {
+			client.release();
+		}
+	}
+}
+function convertToHistoryMessage(message: any): HistoryMessage {
+	return {
+		id: message.id,
+		sender: message.sender,
+		text: message.content,
+		timestamp: message.created_at.toISOString(),
+	};
+}

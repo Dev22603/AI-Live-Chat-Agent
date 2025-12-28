@@ -10,7 +10,7 @@ export function success<T extends Record<string, any>>(code: number, message: st
 	return NextResponse.json(body, { status: code });
 }
 
-export function error(message: string, code: 400) {
+export function error(message: string, code: number) {
 	const body: ApiResponse<null> = {
 		code,
 		message,
