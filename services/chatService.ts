@@ -19,10 +19,20 @@ export async function sendMessage(
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to send message');
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send message');
+      } else {
+        // Response is not JSON (likely HTML error page)
+        const textResponse = await response.text();
+        console.error('Non-JSON response:', textResponse.substring(0, 200));
+        throw new Error(`Server error (${response.status}): Unable to process request`);
+      }
     }
 
+    // Parse JSON response
     const data: ApiResponse<ChatData> = await response.json();
     return data;
   } catch (error) {

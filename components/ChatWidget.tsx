@@ -51,7 +51,12 @@ export default function ChatWidget() {
 
       setState((prev) => ({
         ...prev,
-        messages: [...prev.messages, aiMessage],
+        messages: [
+          ...prev.messages.map((msg) =>
+            msg.id === userMessage.id ? { ...msg, status: 'sent' as const } : msg
+          ),
+          aiMessage,
+        ],
         isLoading: false,
       }));
     } catch (error) {
