@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { Message, ChatState } from '@/types/chat';
 import { getConversationId, setConversationId } from '@/lib/conversation';
 import { createMessage } from '@/lib/messageUtils';
-import { sendMessage } from '@/services/chatService';
+import { sendMessage, getConversationHistory } from '@/services/chatService';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 import ErrorMessage from './ErrorMessage';
 import { ERROR_MESSAGES } from '@/constants/chat';
+import { HistoryMessage } from '@/types/api';
 
 export default function ChatWidget() {
   const [state, setState] = useState<ChatState>({
@@ -19,10 +20,45 @@ export default function ChatWidget() {
   });
 
   useEffect(() => {
-    const storedConversationId = getConversationId();
-    if (storedConversationId) {
-      setState((prev) => ({ ...prev, conversationId: storedConversationId }));
-    }
+    const loadConversation = async () => {
+      const storedConversationId = getConversationId();
+      if (storedConversationId) {
+        setState((prev) => ({
+          ...prev,
+          conversationId: storedConversationId,
+          isLoading: true
+        }));
+
+        try {
+          const response = await getConversationHistory(storedConversationId);
+
+          // Transform HistoryMessage[] to Message[]
+          const messages: Message[] = response.data.messages.map((historyMsg: HistoryMessage) => ({
+            id: historyMsg.id,
+            conversationId: storedConversationId,
+            sender: historyMsg.sender,
+            content: historyMsg.text,
+            timestamp: new Date(historyMsg.timestamp),
+            status: 'sent' as const,
+          }));
+
+          setState((prev) => ({
+            ...prev,
+            messages,
+            isLoading: false,
+          }));
+        } catch (error) {
+          console.error('Failed to load conversation history:', error);
+          setState((prev) => ({
+            ...prev,
+            isLoading: false,
+            error: 'Failed to load conversation history',
+          }));
+        }
+      }
+    };
+
+    loadConversation();
   }, []);
 
   const handleSendMessage = async (content: string) => {
