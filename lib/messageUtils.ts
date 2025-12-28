@@ -1,4 +1,5 @@
 import { Message, MessageSender } from '@/types/chat';
+import { validateInputFrontend, quickJailbreakCheck } from '@/lib/guardrails';
 
 export function createMessage(
   content: string,
@@ -24,6 +25,17 @@ export function validateMessage(content: string): string | null {
 
   if (trimmed.length > 5000) {
     return 'Message is too long (maximum 5000 characters)';
+  }
+
+  // Apply frontend guardrails (less strict than backend)
+  const validationResult = validateInputFrontend(trimmed);
+  if (!validationResult.passed) {
+    return validationResult.reason || 'Invalid message';
+  }
+
+  // Quick jailbreak check
+  if (quickJailbreakCheck(trimmed)) {
+    return 'Message contains suspicious content';
   }
 
   return null;

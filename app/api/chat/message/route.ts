@@ -15,6 +15,7 @@ import {
 	saveMessage,
 } from "@/repositories";
 import { getChat } from "@/config/gemini";
+import { checkAllInputGuardrails, getSafeResponse } from "@/lib/guardrails";
 
 export async function POST(request: Request) {
 	let conversationId: string | null = null;
@@ -26,6 +27,25 @@ export async function POST(request: Request) {
 
 		if (!userMessage) {
 			return error("message cant be empty", 400);
+		}
+
+		// Apply guardrails to input
+		const guardrailCheck = checkAllInputGuardrails(userMessage);
+		if (!guardrailCheck.passed) {
+			console.warn("Guardrail violation:", {
+				reason: guardrailCheck.reason,
+				severity: guardrailCheck.severity,
+				blockedContent: guardrailCheck.blockedContent,
+			});
+			return error(
+				guardrailCheck.reason || "Message violates content policy",
+				400
+			);
+		}
+
+		// Use sanitized message if available
+		if (guardrailCheck.sanitizedMessage) {
+			userMessage = guardrailCheck.sanitizedMessage;
 		}
 
 		conversationId = body.conversationId?.trim() ?? null;
@@ -42,16 +62,29 @@ export async function POST(request: Request) {
 		const chat = getChat(history);
 		const response = await chat.sendMessage({ message: userMessage });
 
+		let aiResponse = response.text || "Chatbot error: no response received";
+
+		// Apply response filtering guardrails
 		if (response.text) {
+			const safeResponse = getSafeResponse(response.text);
+			if (!safeResponse.safe) {
+				console.warn("Response filtered:", {
+					reason: safeResponse.reason,
+				});
+			}
+			aiResponse = safeResponse.message;
+		}
+
+		if (aiResponse && aiResponse !== "Chatbot error: no response received") {
 			// Save both messages atomically when we have a complete exchange
-			await saveChatExchange(conversationId, userMessage, response.text);
+			await saveChatExchange(conversationId, userMessage, aiResponse);
 		} else {
 			// Fallback: save just user message if AI failed to respond
 			await saveMessage(conversationId, userMessage, "user");
 		}
 
 		return success<ChatData>(201, "message sent", {
-			message: response.text || "Chatbot error: no response received",
+			message: aiResponse,
 			conversationId: conversationId,
 		});
 	} catch (err) {
