@@ -3,6 +3,7 @@ dotenv.config();
 import { config } from "./env";
 import { GoogleGenAI } from "@google/genai";
 import { GeminiHistoryMessage } from "@/types";
+import { SYSTEM_INSTRUCTION } from "@/constants/chat";
 
 // Type definition for Gemini chat history format
 
@@ -20,6 +21,7 @@ const GOOGLE_AI_MODEL = "gemini-2.5-flash";
 const getChat = (history: GeminiHistoryMessage[] = []) => {
 	return ai.chats.create({
 		model: GOOGLE_AI_MODEL,
+		systemInstruction: SYSTEM_INSTRUCTION,
 		history,
 	});
 };

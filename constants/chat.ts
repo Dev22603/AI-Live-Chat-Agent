@@ -23,3 +23,6 @@ export const ERROR_MESSAGES = {
 
 export const WELCOME_MESSAGE =
   'Hello! How can I help you today? Feel free to ask about our shipping policy, returns, or anything else.';
+
+export const SYSTEM_INSTRUCTION =
+  'Keep the replies to point, no need of long paragraphs, no need of formatting like bold text, etc';
