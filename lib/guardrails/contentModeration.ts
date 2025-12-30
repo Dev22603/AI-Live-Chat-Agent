@@ -21,7 +21,8 @@ function checkProfanity(message: string): GuardrailResult {
     const cleanWord = word.replace(/[^\w]/g, '');
 
     for (const profanity of PROFANITY_LIST) {
-      if (cleanWord === profanity || cleanWord.includes(profanity)) {
+      // Only exact word matches, not substrings (prevents "hello" matching "hell")
+      if (cleanWord === profanity) {
         foundProfanity.push(word);
         break;
       }
