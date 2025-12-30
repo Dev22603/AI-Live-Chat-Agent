@@ -97,3 +97,14 @@ export const SUSPICIOUS_URL_PATTERNS = [
   /ow\.ly/gi,
   /t\.co/gi,
 ];
+
+// Whitelisted business contact information (allowed in responses)
+export const WHITELISTED_BUSINESS_INFO = [
+  'support@shopease.in',
+  '+91 79 4567 8900',
+  '+91 98765 43210',
+  'shopease@paytm',
+  'www.shopease.in',
+  'shopease.in',
+  '402 Sakar Complex, Ashram Road, Ahmedabad, Gujarat 380009',
+];

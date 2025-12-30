@@ -4,7 +4,7 @@
  */
 
 import { GuardrailResult } from './types';
-import { GUARDRAIL_CONFIG, PII_PATTERNS } from './config';
+import { GUARDRAIL_CONFIG, PII_PATTERNS, WHITELISTED_BUSINESS_INFO } from './config';
 
 /**
  * Checks if response reveals system prompt or instructions
@@ -34,16 +34,28 @@ function checkPromptLeakage(response: string): GuardrailResult {
 
 /**
  * Checks for PII in AI response
+ * Allows whitelisted business contact information
  */
 function checkResponsePII(response: string): GuardrailResult {
   for (const pattern of PII_PATTERNS) {
-    if (pattern.test(response)) {
-      return {
-        passed: false,
-        reason: 'Response may contain sensitive information',
-        severity: 'critical',
-        blockedContent: 'PII in response',
-      };
+    const matches = response.match(pattern);
+    if (matches) {
+      // Check if any match is NOT in the whitelist
+      const hasNonWhitelistedPII = matches.some(match => {
+        return !WHITELISTED_BUSINESS_INFO.some(whitelisted =>
+          whitelisted.toLowerCase().includes(match.toLowerCase()) ||
+          match.toLowerCase().includes(whitelisted.toLowerCase())
+        );
+      });
+
+      if (hasNonWhitelistedPII) {
+        return {
+          passed: false,
+          reason: 'Response may contain sensitive information',
+          severity: 'critical',
+          blockedContent: 'PII in response',
+        };
+      }
     }
   }
 
