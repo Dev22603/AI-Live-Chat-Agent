@@ -1,182 +1,173 @@
 # AI Live Chat Agent
 
-A modern, real-time chat interface for an AI-powered e-commerce support agent built with Next.js, React, and TypeScript.
+A real-time chat interface for an AI-powered e-commerce support agent built with Next.js, Supabase, and Google Gemini AI.
 
-## Overview
-
-This is a live chat widget that allows users to interact with an AI support agent. The frontend is fully implemented with session-based conversation tracking (no authentication required). Users can ask questions about shipping, returns, payment methods, and more.
+> **Note:** Redis is NOT implemented in this project. The application uses Supabase (PostgreSQL) for data storage.
 
 ## Features
 
-- **Real-time chat interface** with smooth animations
-- **Session-based conversations** - no login required
-- **Persistent chat history** across page refreshes
-- **Typing indicators** for better UX
-- **Error handling** with retry functionality
-- **Responsive design** with Tailwind CSS
-- **Full TypeScript** type safety
-- **Separation of concerns** - API calls isolated in service layer
+- Real-time AI chat with Google Gemini
+- Session-based conversations (no login required)
+- Persistent chat history with Supabase
+- Typing indicators and smooth animations
+- Fully responsive design
 
-## Tech Stack
+## Prerequisites
 
-- **Frontend**: Next.js 16 (App Router)
-- **UI**: React 19 + Tailwind CSS 4
-- **Language**: TypeScript 5
-- **State Management**: React Hooks
-- **API Service Layer**: Isolated in `services/`
-- **Backend**: Ready for integration (see API_INTEGRATION.md)
+- Node.js (v18 or higher)
+- A Google Cloud account (for Gemini API)
+- A Supabase account
 
-## Getting Started
+## Setup Instructions
 
-### 1. Install Dependencies
+### 1. Clone and Install Dependencies
 
 ```bash
+git clone <your-repo-url>
+cd AI-Live-Chat-Agent
 npm install
 ```
 
-### 2. Run Development Server
+### 2. Get Your Google Gemini API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Click "Create API Key"
+3. Copy your API key (keep it safe!)
+
+### 3. Set Up Supabase
+
+1. Go to [Supabase](https://supabase.com) and create a new project
+2. Wait for your database to be provisioned
+3. Go to **Project Settings** → **Database**
+4. Note down these connection details:
+   - **Host** (DB_HOST)
+   - **Port** (DB_PORT, usually 5432)
+   - **Database name** (DB_NAME)
+   - **User** (DB_USER)
+   - **Password** (DB_PASSWORD)
+
+5. Create the required tables by running this SQL in the Supabase SQL Editor:
+
+```sql
+-- Create conversations table
+CREATE TABLE conversations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create messages table
+CREATE TABLE messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID REFERENCES conversations(id),
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for better performance
+CREATE INDEX idx_messages_conversation ON messages(conversation_id);
+CREATE INDEX idx_conversations_session ON conversations(session_id);
+```
+
+### 4. Configure Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+# Google Gemini API Key
+GOOGLE_API_KEY=your_gemini_api_key_here
+
+# Supabase Database Configuration
+DB_HOST=your_supabase_host
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your_database_password
+DB_NAME=postgres
+```
+
+**Example:**
+```env
+GOOGLE_API_KEY=AIzaSyC1234567890abcdefghijklmnopqrstuv
+DB_HOST=db.abcdefghijk.supabase.co
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your_secure_password_123
+DB_NAME=postgres
+```
+
+### 5. Run the Project
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the chat interface.
-
-### 3. Test with Mock Data
-
-The frontend is fully functional with mock AI responses. You can test the entire user experience before implementing the backend.
-
-**Try asking:**
-- "What is your shipping policy?"
-- "How do I return an item?"
-- "What are your support hours?"
-- "What payment methods do you accept?"
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 
 ```
-├── app/
-│   ├── page.tsx              # Main chat page
-│   ├── layout.tsx            # Root layout
-│   └── globals.css           # Global styles
-├── components/
-│   ├── ChatWidget.tsx        # Main chat container (state management)
-│   ├── MessageList.tsx       # Scrollable message list
-│   ├── Message.tsx           # Individual message component
-│   ├── ChatInput.tsx         # Input box with send button
-│   ├── TypingIndicator.tsx   # "Agent is typing..." animation
-│   └── ErrorMessage.tsx      # Error display with retry
-├── services/
-│   └── chatService.ts        # API service layer (all API calls)
-├── lib/
-│   ├── session.ts            # sessionId localStorage management
-│   └── messageUtils.ts       # Message helpers and formatting
-├── types/
-│   └── chat.ts               # TypeScript type definitions
-├── constants/
-│   └── chat.ts               # App constants and config
-├── API_INTEGRATION.md        # Backend integration guide
-├── FLOW.md                   # Session handling flow
-└── TODO.md                   # Original requirements
+├── app/                    # Next.js app router pages
+│   ├── api/               # API routes
+│   └── page.tsx           # Main chat page
+├── components/            # React components
+│   ├── ChatWidget.tsx
+│   ├── MessageList.tsx
+│   └── ...
+├── config/                # Configuration files
+│   └── env.ts            # Environment variables
+├── lib/                   # Database and utilities
+│   └── db.ts             # Supabase connection
+├── services/              # Business logic
+│   └── chatService.ts    # Chat API service
+└── types/                 # TypeScript types
 ```
 
 ## How It Works
 
-### Session Flow (see FLOW.md for details)
+1. User opens the chat → A unique session ID is generated
+2. User sends a message → Saved to Supabase
+3. Message is sent to Google Gemini AI
+4. AI response is received and saved to Supabase
+5. Response is displayed in the chat
+6. Chat history persists across page refreshes
 
-1. **First visit**: User opens chat with no sessionId
-2. **User sends message**: Frontend sends message to backend
-3. **Backend generates sessionId**: Returns AI reply + sessionId
-4. **Frontend stores sessionId**: Saved to localStorage
-5. **Subsequent messages**: Frontend includes sessionId with every request
-6. **Page refresh**: sessionId persists, conversation continues
-7. **New browser/device**: New sessionId, new conversation
+## Troubleshooting
 
-### Key Components
+**"Connection error" when starting:**
+- Check your `.env.local` file exists and has all required variables
+- Verify your Supabase database is running
+- Make sure your IP is allowed in Supabase (Project Settings → Database → Connection Pooling)
 
-- **`ChatWidget`**: Main component with state management and API orchestration
-- **`MessageList`**: Handles message rendering and auto-scroll behavior
-- **`ChatInput`**: Textarea with validation, character count, and keyboard shortcuts
-- **`chatService`**: Isolated API layer - all backend calls go through here
+**"Invalid API key" error:**
+- Verify your Google Gemini API key is correct
+- Check if the API key has the necessary permissions
 
-## Backend Integration
-
-The frontend is ready for backend integration. See **[API_INTEGRATION.md](./API_INTEGRATION.md)** for:
-
-- Required API endpoints
-- Request/response formats
-- Database schema
-- LLM integration guide
-- Error handling
-- Testing scenarios
-- Complete implementation examples
-
-**Summary**: Replace mock implementations in `services/chatService.ts` with actual fetch calls to your backend API.
-
-## Environment Variables
-
-When implementing the backend, create a `.env.local` file:
-
-```env
-# LLM API (choose one)
-OPENAI_API_KEY=your_openai_key
-ANTHROPIC_API_KEY=your_claude_key
-
-# Database (if using Supabase)
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-```
-
-**Note**: Never commit `.env.local` to version control.
-
-## Development Notes
-
-### Code Quality
-- **No API calls in components**: All API logic is in `services/chatService.ts`
-- **Type-safe**: Full TypeScript coverage with strict mode
-- **Proper error handling**: User-friendly error messages with retry
-- **Clean separation**: Components, services, utilities, and types are separated
-
-### UI/UX Features
-- Auto-scroll to latest message
-- Disable send button while processing
-- Typing indicator during AI response
-- Enter to send, Shift+Enter for new line
-- Character count (max 5000 characters)
-- Error messages with dismiss/retry options
-- Responsive design for mobile and desktop
+**Database connection fails:**
+- Confirm your Supabase connection details are correct
+- Check if you've created the required tables (conversations and messages)
+- Ensure your database password doesn't contain special characters that need escaping
 
 ## Deployment
 
 ### Vercel (Recommended)
 
-```bash
-npm run build
-# Deploy to Vercel
-```
+1. Push your code to GitHub
+2. Go to [Vercel](https://vercel.com)
+3. Import your repository
+4. Add all environment variables from `.env.local`
+5. Deploy!
 
-### Other Platforms
+**Important:** Add all your environment variables in Vercel's project settings before deploying.
 
-```bash
-npm run build
-npm start
-```
+## Tech Stack
 
-## Next Steps
-
-1. **Backend Implementation**: Follow [API_INTEGRATION.md](./API_INTEGRATION.md)
-2. **Database Setup**: Create tables for conversations and messages
-3. **LLM Integration**: Connect OpenAI or Anthropic API
-4. **Replace Mocks**: Update `services/chatService.ts` with real API calls
-5. **Test End-to-End**: Verify all user flows work correctly
-
-## Documentation
-
-- **[API_INTEGRATION.md](./API_INTEGRATION.md)** - Complete backend integration guide
-- **[FLOW.md](./FLOW.md)** - Detailed session handling flow
-- **[TODO.md](./TODO.md)** - Original project requirements
+- **Frontend:** Next.js 16, React 19, Tailwind CSS 4
+- **Backend:** Next.js API Routes
+- **Database:** Supabase (PostgreSQL)
+- **AI:** Google Gemini AI
+- **Language:** TypeScript 5
 
 ## License
 
-This project is part of a technical assignment for Spur AI.
+This project is part of a technical assignment.
