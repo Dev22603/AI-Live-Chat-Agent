@@ -72,8 +72,3 @@ export function formatTimestamp(date: Date): string {
     hour12: true,
   });
 }
-
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 3) + '...';
-}

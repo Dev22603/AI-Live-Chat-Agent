@@ -1,5 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
 import { config } from "./env";
 import { GoogleGenAI } from "@google/genai";
 import { GeminiHistoryMessage } from "@/types";

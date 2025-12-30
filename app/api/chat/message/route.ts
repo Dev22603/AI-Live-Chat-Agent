@@ -8,7 +8,6 @@ import {
 import { randomUUID } from "crypto";
 import { pool } from "@/lib/db";
 import { success, error } from "@/lib/response";
-import { getConversation } from "@/repositories/conversationRepository";
 import {
 	getConversationHistory,
 	saveChatExchange,

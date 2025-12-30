@@ -30,7 +30,3 @@ export function clearConversationId(): void {
     console.error('Error clearing conversationId:', error);
   }
 }
-
-export function hasConversationId(): boolean {
-  return getConversationId() !== null;
-}
