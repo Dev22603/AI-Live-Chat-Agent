@@ -97,6 +97,6 @@ export async function POST(request: Request) {
 		}
 
 		console.error("Error in chat endpoint:", err);
-		return error("Failed to process chat message", 500);
+		return error("Failed to process chat message", 500,err);
 	}
 }
