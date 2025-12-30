@@ -1,5 +1,6 @@
 import { ApiResponse, ChatData, HistoryData } from '@/types/api';
 import { API_ENDPOINTS, CHAT_CONFIG } from '@/constants/chat';
+import { config } from '@/config/env';
 
 export async function sendMessage(
   message: string,
@@ -10,6 +11,7 @@ export async function sendMessage(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.GOOGLE_API_KEY}`,
       },
       body: JSON.stringify({
         message,
