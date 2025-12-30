@@ -1,0 +1,50 @@
+# Netlify Configuration for AI Live Chat Agent
+# Next.js 16 App Router with API Routes
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Next.js runtime for serverless functions
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Next.js plugin for Netlify
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Redirects for SPA behavior
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-XSS-Protection = "1; mode=block"
+
+# API routes headers (CORS)
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+
+# Environment variables (configure these in Netlify dashboard)
+# Required environment variables:
+# - GEMINI_API_KEY or GOOGLE_API_KEY (your Google AI Studio API key)
+# - DB_HOST (PostgreSQL host)
+# - DB_PORT (PostgreSQL port, default: 5432)
+# - DB_USER (PostgreSQL username)
+# - DB_PASSWORD (PostgreSQL password)
+# - DB_NAME (PostgreSQL database name)
+# Optional:
+# - NEXT_PUBLIC_SUPABASE_URL (if using Supabase)
+# - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY (if using Supabase)
