@@ -21,7 +21,9 @@ const GOOGLE_AI_MODEL = "gemini-2.5-flash";
 const getChat = (history: GeminiHistoryMessage[] = []) => {
 	return ai.chats.create({
 		model: GOOGLE_AI_MODEL,
-		systemInstruction: SYSTEM_INSTRUCTION,
+		config: {
+			systemInstruction: SYSTEM_INSTRUCTION,
+		},
 		history,
 	});
 };
