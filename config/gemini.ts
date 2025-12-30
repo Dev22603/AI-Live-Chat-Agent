@@ -7,7 +7,7 @@ import { SYSTEM_INSTRUCTION } from "@/constants/chat";
 
 
 const ai = new GoogleGenAI({
-	apiKey: process.env.GEMINI_API_KEY, // get this from Google AI Studio
+	apiKey: config.GOOGLE_API_KEY,
 });
 const GOOGLE_AI_MODEL = "gemini-2.5-flash";
 
