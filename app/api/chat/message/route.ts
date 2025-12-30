@@ -1,6 +1,5 @@
 import {
 	ChatData,
-	ChatRequest,
 	convertToGeminiFormat,
 	GeminiHistoryMessage,
 	HistoryData,
@@ -15,17 +14,41 @@ import {
 } from "@/repositories";
 import { getChat } from "@/config/gemini";
 import { checkAllInputGuardrails, getSafeResponse } from "@/lib/guardrails";
+import { safeParseJSON, validateChatRequest } from "@/lib/validation";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { isAppError } from "@/types/errors";
 
 export async function POST(request: Request) {
 	let conversationId: string | null = null;
 	let userMessage = "";
 
 	try {
-		const body: ChatRequest = await request.json();
-		userMessage = body.message?.trim() ?? "";
+		// Safely parse JSON
+		const parseResult = await safeParseJSON(request);
+		if (!parseResult.success) {
+			return error(parseResult.error || "Invalid request format", 400);
+		}
 
-		if (!userMessage) {
-			return error("message cant be empty", 400);
+		// Validate request body
+		const validationResult = validateChatRequest(parseResult.data);
+		if (!validationResult.success || !validationResult.data) {
+			return error(validationResult.error || "Invalid request data", 400);
+		}
+
+		const { message, conversationId: requestConversationId } = validationResult.data;
+		userMessage = message;
+
+		// Use validated conversationId or generate new one
+		conversationId = requestConversationId || randomUUID();
+
+		// Check rate limit
+		try {
+			checkRateLimit(conversationId);
+		} catch (rateLimitError) {
+			if (isAppError(rateLimitError)) {
+				return error(rateLimitError.message, rateLimitError.statusCode);
+			}
+			throw rateLimitError;
 		}
 
 		// Apply guardrails to input
@@ -45,11 +68,6 @@ export async function POST(request: Request) {
 		// Use sanitized message if available
 		if (guardrailCheck.sanitizedMessage) {
 			userMessage = guardrailCheck.sanitizedMessage;
-		}
-
-		conversationId = body.conversationId?.trim() ?? null;
-		if (!conversationId) {
-			conversationId = randomUUID();
 		}
 
 		const conversation: HistoryData = await getConversationHistory(
@@ -97,6 +115,8 @@ export async function POST(request: Request) {
 		}
 
 		console.error("Error in chat endpoint:", err);
-		return error("Failed to process chat message", 500,err);
+		// Don't expose error details to client
+		const errorMessage = err instanceof Error ? err.message : "Failed to process chat message";
+		return error("An error occurred while processing your message. Please try again.", 500);
 	}
 }

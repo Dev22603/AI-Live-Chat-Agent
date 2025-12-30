@@ -57,7 +57,11 @@ export default function ChatInput({
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         {/* Error display */}
         {error && (
-          <div className="text-xs text-red-600">
+          <div
+            id="message-error"
+            className="text-xs text-red-600"
+            role="alert"
+          >
             {error}
           </div>
         )}
@@ -66,6 +70,7 @@ export default function ChatInput({
         <div className="flex items-end gap-2">
           <div className="relative flex-1">
             <textarea
+              id="message-input"
               value={message}
               onChange={(e) => handleChange(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -78,10 +83,17 @@ export default function ChatInput({
                 minHeight: '48px',
                 maxHeight: '120px',
               }}
+              aria-label="Type your message"
+              aria-describedby={error ? 'message-error helper-text' : 'helper-text'}
+              aria-invalid={!!error}
             />
             {/* Character count */}
             {message.length > 0 && (
-              <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+              <div
+                className="absolute bottom-2 right-2 text-xs text-gray-400"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 {message.length}/{CHAT_CONFIG.MAX_MESSAGE_LENGTH}
               </div>
             )}
@@ -92,7 +104,7 @@ export default function ChatInput({
             type="submit"
             disabled={disabled || !message.trim()}
             className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500 text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:hover:bg-gray-300"
-            aria-label="Send message"
+            aria-label={disabled ? "Sending message" : "Send message"}
           >
             {disabled ? (
               <svg
@@ -133,7 +145,7 @@ export default function ChatInput({
         </div>
 
         {/* Helper text */}
-        <div className="text-xs text-gray-500">
+        <div id="helper-text" className="text-xs text-gray-500">
           Press Enter to send, Shift+Enter for new line
         </div>
       </form>

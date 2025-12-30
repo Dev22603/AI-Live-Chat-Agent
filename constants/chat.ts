@@ -1,10 +1,13 @@
+import { GUARDRAIL_CONFIG } from '@/lib/guardrails/config';
+
 export const API_ENDPOINTS = {
   SEND_MESSAGE: '/api/chat/message',
   GET_HISTORY: '/api/chat/history',
 } as const;
 
 export const CHAT_CONFIG = {
-  MAX_MESSAGE_LENGTH: 5000,
+  // Use shared configuration from guardrails to avoid duplication
+  MAX_MESSAGE_LENGTH: GUARDRAIL_CONFIG.MAX_MESSAGE_LENGTH,
   TYPING_INDICATOR_DELAY: 300,
   AUTO_SCROLL_DELAY: 100,
   MESSAGE_PLACEHOLDER: 'Type your message...',
@@ -14,7 +17,7 @@ export const CHAT_CONFIG = {
 
 export const ERROR_MESSAGES = {
   EMPTY_MESSAGE: 'Please enter a message',
-  MESSAGE_TOO_LONG: `Message is too long (maximum ${CHAT_CONFIG.MAX_MESSAGE_LENGTH} characters)`,
+  MESSAGE_TOO_LONG: `Message is too long (maximum ${GUARDRAIL_CONFIG.MAX_MESSAGE_LENGTH} characters)`,
   NETWORK_ERROR: 'Unable to connect. Please check your internet connection.',
   SERVER_ERROR: 'Something went wrong. Please try again.',
   TIMEOUT: 'Request timed out. Please try again.',

@@ -20,6 +20,17 @@ import { MessageSender } from "@/types/chat";
 import { PoolClient } from "pg";
 
 /**
+ * Database row interface for messages table
+ */
+interface MessageRow {
+	id: number;
+	conversation_id: string;
+	sender: string;
+	content: string;
+	created_at: Date;
+}
+
+/**
  * Saves a chat message to the database
  *
  * @param conversationId - The conversation identifier (UUID)
@@ -76,7 +87,11 @@ export async function saveMessage(
 	} catch (error) {
 		// Rollback transaction on error
 		if (client) {
-			await client.query("ROLLBACK");
+			try {
+				await client.query("ROLLBACK");
+			} catch (rollbackError) {
+				console.error("Failed to rollback transaction:", rollbackError);
+			}
 		}
 
 		// Log error for debugging
@@ -109,17 +124,16 @@ export async function getConversationHistory(
 
 		const ConversationHistory: HistoryData = {
 			conversationId: conversationId,
-			messages: result.rows.map((row: any) => ({
-				id: row.id,
-				sender: row.sender as MessageSender,
-				text: row.content,
-				timestamp: row.created_at.toISOString(),
-			})),
+			messages: result.rows.map((row: MessageRow) => convertToHistoryMessage(row)),
 		};
 		return ConversationHistory;
 	} catch (error) {
 		console.error("Error getting conversation history:", error);
-		throw error;
+		throw new Error(
+			`Failed to get conversation history: ${
+				error instanceof Error ? error.message : "Unknown error"
+			}`
+		);
 	} finally {
 		if (client) {
 			client.release();
@@ -163,18 +177,34 @@ export async function saveChatExchange(
 			modelMessage: convertToHistoryMessage(modelResult.rows[0]),
 		};
 	} catch (error) {
-		console.error("Error getting conversation history:", error);
-		throw error;
+		// Rollback transaction on error
+		if (client) {
+			try {
+				await client.query("ROLLBACK");
+			} catch (rollbackError) {
+				console.error("Failed to rollback transaction:", rollbackError);
+			}
+		}
+
+		console.error("Error saving chat exchange:", error);
+		throw new Error(
+			`Failed to save chat exchange: ${
+				error instanceof Error ? error.message : "Unknown error"
+			}`
+		);
 	} finally {
 		if (client) {
 			client.release();
 		}
 	}
 }
-function convertToHistoryMessage(message: any): HistoryMessage {
+/**
+ * Converts a database message row to HistoryMessage type
+ */
+function convertToHistoryMessage(message: MessageRow): HistoryMessage {
 	return {
-		id: message.id,
-		sender: message.sender,
+		id: String(message.id),
+		sender: message.sender as MessageSender,
 		text: message.content,
 		timestamp: message.created_at.toISOString(),
 	};

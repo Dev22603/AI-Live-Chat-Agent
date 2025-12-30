@@ -59,9 +59,9 @@ export function checkAllInputGuardrails(message: string): GuardrailResult {
   }
 
   // All checks passed - return sanitized message from validation
-  const validationResult = checks[0] as any;
+  const validationResult = checks[0];
   return {
     passed: true,
-    sanitizedMessage: validationResult.sanitizedMessage || message,
+    sanitizedMessage: 'sanitizedMessage' in validationResult ? validationResult.sanitizedMessage : message,
   };
 }

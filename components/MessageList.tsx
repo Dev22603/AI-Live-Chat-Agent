@@ -27,11 +27,20 @@ export default function MessageList({ messages, isTyping = false }: MessageListP
     <div
       ref={containerRef}
       className="flex-1 overflow-y-auto overflow-x-hidden bg-white"
+      role="log"
+      aria-label="Chat messages"
+      aria-live="polite"
     >
       <div className="flex flex-col">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center gap-4 px-6 py-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+          <div
+            className="flex flex-col items-center justify-center gap-4 px-6 py-12 text-center"
+            role="status"
+          >
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100"
+              aria-hidden="true"
+            >
               <svg
                 className="h-8 w-8 text-blue-500"
                 fill="none"
@@ -63,7 +72,7 @@ export default function MessageList({ messages, isTyping = false }: MessageListP
 
         {isTyping && <TypingIndicator />}
 
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} aria-hidden="true" />
       </div>
     </div>
   );

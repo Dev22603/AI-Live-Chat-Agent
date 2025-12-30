@@ -34,7 +34,7 @@ export function convertToGeminiFormat(historyData: HistoryData): GeminiHistoryMe
 		parts: [{ text: msg.text }] // Wrap in array with text object
 	}));
 }
-export interface ApiResponse<T extends Record<string, any> | null = Record<string, any>> {
+export interface ApiResponse<T = unknown> {
 	code: number;          // HTTP-like status code
 	message: string;       // description / explanation
 	data: T;               // real payload (object for success, null for error)

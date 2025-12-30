@@ -7,14 +7,18 @@ interface MessageProps {
 
 export default function Message({ message }: MessageProps) {
   const isUser = message.sender === 'user';
+  const senderLabel = isUser ? 'You' : 'AI Assistant';
 
   return (
     <div
+      role="article"
+      aria-label={`${senderLabel}: ${message.content}`}
       className={`flex items-start gap-3 px-4 py-3 ${
         isUser ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
       <div
+        aria-hidden="true"
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
           isUser ? 'bg-gray-700' : 'bg-blue-500'
         }`}
@@ -25,6 +29,7 @@ export default function Message({ message }: MessageProps) {
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-label="User avatar"
           >
             <path
               strokeLinecap="round"
@@ -39,6 +44,7 @@ export default function Message({ message }: MessageProps) {
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-label="AI Assistant avatar"
           >
             <path
               strokeLinecap="round"
@@ -52,7 +58,7 @@ export default function Message({ message }: MessageProps) {
 
       <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
         <div
-          className={`max-w-sm rounded-2xl px-4 py-2 ${
+          className={`max-w-[85%] sm:max-w-sm md:max-w-md rounded-2xl px-4 py-2 ${
             isUser
               ? 'bg-gray-700 text-white'
               : 'bg-gray-100 text-gray-900'
@@ -63,14 +69,14 @@ export default function Message({ message }: MessageProps) {
           </p>
         </div>
         <div className="mt-1 flex items-center gap-2 px-2">
-          <span className="text-xs text-gray-500">
+          <time className="text-xs text-gray-500" dateTime={message.timestamp.toISOString()}>
             {formatTimestamp(message.timestamp)}
-          </span>
+          </time>
           {message.status === 'sending' && (
-            <span className="text-xs text-gray-400">Sending...</span>
+            <span className="text-xs text-gray-400" aria-live="polite">Sending...</span>
           )}
           {message.status === 'error' && (
-            <span className="text-xs text-red-500">Failed</span>
+            <span className="text-xs text-red-500" role="alert">Failed</span>
           )}
         </div>
       </div>
