@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Message as MessageType } from '@/types/chat';
 import Message from './Message';
 import TypingIndicator from './TypingIndicator';
@@ -14,6 +14,27 @@ interface MessageListProps {
 export default function MessageList({ messages, isTyping = false }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const checkScrollPosition = () => {
+    if (containerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollButton(!isNearBottom);
+    }
+  };
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollPosition);
+      return () => container.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -26,7 +47,7 @@ export default function MessageList({ messages, isTyping = false }: MessageListP
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-y-auto overflow-x-hidden bg-white"
+      className="relative flex-1 overflow-y-auto overflow-x-hidden bg-white"
     >
       <div className="flex flex-col">
         {messages.length === 0 && (
@@ -65,6 +86,29 @@ export default function MessageList({ messages, isTyping = false }: MessageListP
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Scroll to bottom button */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg transition-all hover:bg-blue-600 hover:shadow-xl"
+          aria-label="Scroll to bottom"
+        >
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }

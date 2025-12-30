@@ -163,8 +163,20 @@ export async function saveChatExchange(
 			modelMessage: convertToHistoryMessage(modelResult.rows[0]),
 		};
 	} catch (error) {
-		console.error("Error getting conversation history:", error);
-		throw error;
+		// Rollback transaction on error
+		if (client) {
+			await client.query("ROLLBACK");
+		}
+
+		// Log error for debugging
+		console.error("Error saving chat exchange:", error);
+
+		// Throw a meaningful error
+		throw new Error(
+			`Failed to save chat exchange: ${
+				error instanceof Error ? error.message : "Unknown error"
+			}`
+		);
 	} finally {
 		if (client) {
 			client.release();

@@ -105,10 +105,6 @@ export default function ChatWidget() {
         ...prev,
         isLoading: false,
         error: errorMessage,
-      }));
-
-      setState((prev) => ({
-        ...prev,
         messages: prev.messages.map((msg) =>
           msg.id === userMessage.id ? { ...msg, status: 'error' } : msg
         ),

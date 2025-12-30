@@ -1,5 +1,7 @@
 import { Message as MessageType } from '@/types/chat';
 import { formatTimestamp } from '@/lib/messageUtils';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface MessageProps {
   message: MessageType;
@@ -58,9 +60,63 @@ export default function Message({ message }: MessageProps) {
               : 'bg-gray-100 text-gray-900'
           }`}
         >
-          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-            {message.content}
-          </p>
+          {isUser ? (
+            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+              {message.content}
+            </p>
+          ) : (
+            <div className="prose prose-sm max-w-none text-gray-900">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  p: ({ children }) => (
+                    <p className="mb-2 last:mb-0 text-sm leading-relaxed">
+                      {children}
+                    </p>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="mb-2 ml-4 list-disc text-sm">{children}</ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="mb-2 ml-4 list-decimal text-sm">{children}</ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="mb-1 text-sm">{children}</li>
+                  ),
+                  code: ({ className, children }) => {
+                    const isInline = !className;
+                    return isInline ? (
+                      <code className="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-mono text-gray-800">
+                        {children}
+                      </code>
+                    ) : (
+                      <code className="block overflow-x-auto rounded bg-gray-800 p-3 text-xs font-mono text-gray-100">
+                        {children}
+                      </code>
+                    );
+                  },
+                  strong: ({ children }) => (
+                    <strong className="font-semibold">{children}</strong>
+                  ),
+                  em: ({ children }) => (
+                    <em className="italic">{children}</em>
+                  ),
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline hover:text-blue-700"
+                    >
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            </div>
+          )}
         </div>
         <div className="mt-1 flex items-center gap-2 px-2">
           <span className="text-xs text-gray-500">

@@ -6,7 +6,6 @@ import {
 	HistoryData,
 } from "@/types";
 import { randomUUID } from "crypto";
-import { pool } from "@/lib/db";
 import { success, error } from "@/lib/response";
 import {
 	getConversationHistory,

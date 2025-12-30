@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent, KeyboardEvent } from 'react';
+import { useState, useRef, FormEvent, KeyboardEvent } from 'react';
 import { validateMessage } from '@/lib/messageUtils';
 import { CHAT_CONFIG } from '@/constants/chat';
 
@@ -17,6 +17,7 @@ export default function ChatInput({
 }: ChatInputProps) {
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -34,6 +35,9 @@ export default function ChatInput({
     onSendMessage(message.trim());
     setMessage('');
     setError(null);
+
+    // Return focus to input after sending
+    textareaRef.current?.focus();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -66,6 +70,7 @@ export default function ChatInput({
         <div className="flex items-end gap-2">
           <div className="relative flex-1">
             <textarea
+              ref={textareaRef}
               value={message}
               onChange={(e) => handleChange(e.target.value)}
               onKeyDown={handleKeyDown}
